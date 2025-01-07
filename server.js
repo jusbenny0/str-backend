@@ -9,29 +9,39 @@ import cookieParser from "cookie-parser";
 
 dotenv.config();
 const app = express();
+
 app.use(cookieParser());
 app.use(express.json());
 
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL,
-    methods: "GET,POST,PUT,DELETE",
-    credentials: true,
-  })
-);
+// CORS configuration
+const corsOptions = {
+  origin: process.env.FRONTEND_URL,       // allow only your frontend origin
+  methods: "GET,POST,PUT,DELETE,OPTIONS",  // include OPTIONS for preflight
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"], // adjust as needed
+};
 
-console.log(process.env.FRONTEND_URL);
+app.use(cors(corsOptions));
 
+// Explicitly handle preflight OPTIONS requests for all routes
+app.options("*", cors(corsOptions));
+
+console.log("Frontend URL:", process.env.FRONTEND_URL);
+
+// Define routes after CORS middleware
 app.use("/api/auth", authRoutes); 
 app.use("/api/user", userRoutes); 
+app.use("/api/meals", mealRoutes);
+
+// Test endpoint
 app.use("/api/test", (req, res) => {
   res.json({
     message: "This is a test endpoint.",
     success: true,
   });
 });
-app.use("/api/meals", mealRoutes)
 
+// Connect to MongoDB
 mongoose
   .connect(process.env.MONGO, {
     useNewUrlParser: true,
@@ -43,6 +53,7 @@ mongoose
     process.exit(1);
   });
 
+// Start the server
 const server = app.listen(3000, () => {
   console.log("API is running on port 3000");
 });
