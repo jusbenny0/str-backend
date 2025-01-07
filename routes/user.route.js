@@ -10,8 +10,8 @@ import { verifyPassword } from "../controllers/auth.controller.js";
 const router = express.Router();
 
 router.get("/", test);
-router.post("/update/:id", verifyToken, updateUser);
-router.delete("/delete/:id", verifyToken, deleteUser);
+router.post("/update/:id", updateUser);
+router.delete("/delete/:id", deleteUser);
 router.post("/verifyPassword", verifyPassword)
 router.get("/verify", verifyToken, (req, res) => {
   res.status(200).json({ isValid: true });
